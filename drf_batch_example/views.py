@@ -1,19 +1,21 @@
 from django.core.handlers.base import BaseHandler
 from django.http import JsonResponse, HttpRequest
 from django.utils.six import BytesIO
+from rest_framework.exceptions import ValidationError
+from rest_framework.status import is_success
 
 from rest_framework.views import APIView
 
 
 class BatchView(APIView):
     def post(self, request, *args, **kwargs):
-        # todo: raise validation error
-        assert 'batch' in request.data, 'You should provide data for batch request'
+        if not 'batch' in request.data:
+            raise ValidationError('You should provide data for batch request')
 
         requests = request.data['batch']
 
-        # todo: raise validation error
-        assert isinstance(requests, list), 'List of requests should be provided to do batch'
+        if not isinstance(requests, list):
+            raise ValidationError('List of requests should be provided to do batch')
 
         responses = []
 
@@ -38,8 +40,8 @@ class BatchView(APIView):
                 'code': response.status_code,
             }
 
-            # todo: make normal check instead of simple 200
-            if response.status_code != 200 or response.status_code == 200 and not data.get('omit_response_on_success'):
+            if not is_success(response.status_code) or \
+               is_success(response.status_code) and not data.get('omit_response_on_success'):
                 result['body'] = response.content.decode('utf-8')
 
             responses.append(result)
