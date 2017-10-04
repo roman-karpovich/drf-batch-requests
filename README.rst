@@ -19,7 +19,7 @@ var facebook_batch_requests = [
 
 Future features:
 
-- add support for requests pipelining. use responses as arguments to next requests
+- add support for requests pipelining. use responses as arguments to next requests (done)
 - build graph based on requests dependencies & run simultaneously independent.
 - switchable atomic support. true - all fails if something wrong. else - fail only dependent (can be very hard to support on front-end side, but for now seems as good feature)
 - use native django. we don't use complicated things that require drf for work. all can be done with "naked" django.
