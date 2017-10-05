@@ -7,10 +7,11 @@ from django.utils import six
 from django.utils.six import BytesIO
 
 from rest_framework.exceptions import ValidationError
-from rest_framework.status import is_success
+from rest_framework.status import is_success, is_client_error
 from rest_framework.views import APIView
 
-from drf_batch.utils import get_attribute
+from .serializers import JSONBatchRequestSerializer
+from .utils import get_attribute
 
 
 class BatchView(APIView):
@@ -26,7 +27,7 @@ class BatchView(APIView):
                 raise ValidationError('Named request {} is missing'.format(url_param[1]))
 
             result = get_attribute(
-                self.named_responses[url_param[1]]['data'],
+                self.named_responses[url_param[1]]['_data'],
                 url_param[2].split('.')
             )
             if isinstance(result, list):
@@ -61,27 +62,27 @@ class BatchView(APIView):
 
         self.responses = []
         self.named_responses = {}
+        errors = {}
 
-        for request_data in self.requests:
+        for i, batch_request in enumerate(self.requests):
             handler = BaseHandler()
             handler.load_middleware()
             current_request = HttpRequest()
 
-            # todo: create serializer for method, body, etc
+            # todo: switch serializer in dependency of content type
+            request_serializer = JSONBatchRequestSerializer(data=batch_request)
+            if not request_serializer.is_valid(raise_exception=False):
+                errors[i] = request_serializer.errors
+                break
+
+            request_data = request_serializer.data
+
             current_request.method = request_data['method']
-
-            # todo: validate relative_url
-            relative_url = self._process_attr(request_data['relative_url'])
-
-            current_request.path_info = current_request.path = relative_url
+            current_request.path_info = current_request.path = self._process_attr(request_data['relative_url'])
             current_request.META = request.META
 
-            if 'body' in request_data:
-                request_body = json.dumps(self.updated_obj(json.loads(request_data['body'])))
-            else:
-                request_body = ''
-
-            current_request._stream = BytesIO(request_body.encode('utf-8'))
+            # todo: if body contains something other than json, more logic needed
+            current_request._stream = BytesIO(json.dumps(self.updated_obj(request_data['data'])).encode('utf-8'))
             current_request._read_started = False
 
             response = handler.get_response(current_request)
@@ -92,8 +93,10 @@ class BatchView(APIView):
                     for key, value in response._headers.values()
                 ],
                 'body': response.content.decode('utf-8'),
-                'data': json.loads(response.content.decode('utf-8'))
             }
+
+            if is_success(response.status_code) or is_client_error(response.status_code):
+                result['_data'] = json.loads(result['body'])
 
             if not is_success(response.status_code) or \
                is_success(response.status_code) and not request_data.get('omit_response_on_success'):
@@ -102,6 +105,9 @@ class BatchView(APIView):
             if 'name' in request_data:
                 self.named_responses[request_data['name']] = result
 
-            self.responses.append(result)
+            self.responses.append({k: v for k, v in result.items() if not k.startswith('_')})
+
+        if errors:
+            raise ValidationError(errors)
 
         return self.finalize_response(request, JsonResponse(self.responses, safe=False))
