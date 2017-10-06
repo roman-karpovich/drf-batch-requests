@@ -10,11 +10,30 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.status import is_success, is_client_error
 from rest_framework.views import APIView
 
-from .serializers import JSONBatchRequestSerializer
+from .serializers import BatchRequestSerializer
 from .utils import get_attribute
 
 
 class BatchView(APIView):
+    def _prepare_formdata_body(self, data, files=None):
+        if not data:
+            return ''
+
+        match = re.search(r'boundary=(?P<boundary>.+)', self.request.content_type)
+        assert match
+        boundary = match.groupdict()['boundary']
+        body = '{}\n'.format(boundary)
+        for key, value in data.items():
+            body += 'Content-Disposition: form-data; name="{}"\n{}\n{}\n'.format(key, value, boundary)
+
+        return body
+
+    def _prepare_urlencoded_body(self, data):
+        raise NotImplementedError
+
+    def _prepare_json_body(self, data):
+        return json.dumps(data)
+
     def _process_attr(self, attr):
         params = re.findall(
             r'({result=(?P<name>\w+):\$\.(?P<value>[a-zA-Z0-9.*]+)})', attr
@@ -55,34 +74,33 @@ class BatchView(APIView):
         return obj
 
     def post(self, request, *args, **kwargs):
-        self.requests = request.data
-
-        if not isinstance(self.requests, list):
-            raise ValidationError('List of requests should be provided to do batch')
+        request_serializer = BatchRequestSerializer(data=request.data)
+        request_serializer.is_valid(raise_exception=True)
 
         self.responses = []
         self.named_responses = {}
-        errors = {}
 
-        for i, batch_request in enumerate(self.requests):
+        for request_data in request_serializer.data['batch']:
             handler = BaseHandler()
             handler.load_middleware()
             current_request = HttpRequest()
-
-            # todo: switch serializer in dependency of content type
-            request_serializer = JSONBatchRequestSerializer(data=batch_request)
-            if not request_serializer.is_valid(raise_exception=False):
-                errors[i] = request_serializer.errors
-                break
-
-            request_data = request_serializer.data
 
             current_request.method = request_data['method']
             current_request.path_info = current_request.path = self._process_attr(request_data['relative_url'])
             current_request.META = request.META
 
-            # todo: if body contains something other than json, more logic needed
-            current_request._stream = BytesIO(json.dumps(self.updated_obj(request_data['data'])).encode('utf-8'))
+            request_data['data'] = self.updated_obj(request_data['data'])
+
+            if request.content_type.startswith('multipart/form-data'):
+                body = self._prepare_formdata_body(request_data['data'], files=request_data.get('files', {}))
+            elif request.content_type.startswith('application/x-www-form-urlencoded'):
+                body = self._prepare_urlencoded_body(request_data['data'])
+            elif request.content_type.startswith('application/json'):
+                body = self._prepare_json_body(request_data['data'])
+            else:
+                raise ValidationError('Unsupported content type')
+
+            current_request._stream = BytesIO(body.encode('utf-8'))
             current_request._read_started = False
 
             response = handler.get_response(current_request)
@@ -106,8 +124,5 @@ class BatchView(APIView):
                 self.named_responses[request_data['name']] = result
 
             self.responses.append({k: v for k, v in result.items() if not k.startswith('_')})
-
-        if errors:
-            raise ValidationError(errors)
 
         return self.finalize_response(request, JsonResponse(self.responses, safe=False))
