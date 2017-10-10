@@ -1,4 +1,3 @@
-=====================
 DRF batch requests
 =====================
 
@@ -7,6 +6,7 @@ Quick start
 
 
 examples:
+```
     curl -X POST \
       http://127.0.0.1:8000/batch/ \
       -H 'cache-control: no-cache' \
@@ -34,8 +34,10 @@ examples:
         }
     ]
     }'
+```
 
 using file uploading
+```
     curl -X POST \
       http://127.0.0.1:8000/batch/ \
       -H 'cache-control: no-cache' \
@@ -66,6 +68,7 @@ using file uploading
     ]' \
       -F b.png=@2476.png \
       -F a.jpg=@check_133.pdf
+```
 
 
 Future features:
