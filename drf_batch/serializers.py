@@ -12,8 +12,26 @@ class SingleRequestSerializer(serializers.Serializer):
     method = serializers.CharField()
     relative_url = serializers.CharField()
     body = serializers.JSONField(required=False, default={})
-    attached_files = serializers.ListField(child=serializers.CharField(), required=False)
+    # attached files formats: ["a.jpg", "b.png"] - will be attached as it is, {"file": "a.jpg"} - attach as specific key
+    attached_files = serializers.JSONField(required=False)
     data = serializers.SerializerMethodField()
+    files = serializers.SerializerMethodField()
+
+    def get_files(self, attrs):
+        if 'attached_files' not in attrs:
+            return []
+
+        attached_files = attrs['attached_files']
+        if isinstance(attached_files, dict):
+            return {
+                key: self.context['parent'].get_files()[attrs['attached_files'][key]] for key in attrs['attached_files']
+            }
+        elif isinstance(attached_files, list):
+            return {
+                key: self.context['parent'].get_files()[key] for key in attrs['attached_files']
+            }
+        else:
+            raise ValidationError('Incorrect format.')
 
     def validate_relative_url(self, value):
         if not value.startswith('/'):
@@ -51,7 +69,7 @@ class BatchRequestSerializer(serializers.Serializer):
         if not isinstance(value, list):
             raise ValidationError('List of requests should be provided to do batch')
 
-        r_serializers = list(map(lambda d: SingleRequestSerializer(data=d), value))
+        r_serializers = list(map(lambda d: SingleRequestSerializer(data=d, context={'parent': self}), value))
 
         errors = []
         for serializer in r_serializers:
@@ -65,8 +83,20 @@ class BatchRequestSerializer(serializers.Serializer):
     def validate(self, attrs):
         attrs = super(BatchRequestSerializer, self).validate(attrs)
 
-        files_in_use = set(itertools.chain(*map(lambda r: r.get('attached_files', []), attrs['batch'])))
-        missing_files = files_in_use - set(self.get_files().keys())
+        files_in_use = []
+        for batch in attrs['batch']:
+            if 'attached_files' not in batch:
+                continue
+
+            attached_files = batch['attached_files']
+            if isinstance(attached_files, dict):
+                files_in_use.extend(attached_files.values())
+            elif isinstance(attached_files, list):
+                files_in_use.extend(attached_files)
+            else:
+                raise ValidationError({'attached_files': 'Invalid format.'})
+
+        missing_files = set(files_in_use) - set(self.get_files().keys())
         if missing_files:
             raise ValidationError('Some of files are not provided: {}'.format(', '.join(missing_files)))
 

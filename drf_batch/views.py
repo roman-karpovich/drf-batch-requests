@@ -26,8 +26,17 @@ class BatchView(APIView):
         for key, value in data.items():
             value = value if isinstance(value, six.string_types) else json.dumps(value)
             body += '--{}\r\nContent-Disposition: form-data; name="{}"\r\n\r\n{}\r\n'.format(boundary, key, value)
-        body += '--{}--\r\n'.format(boundary)
 
+        if files:
+            for key, attachment in files.items():
+                attachment.seek(0)
+                body += '--{}\r\nContent-Disposition: form-data; name="{}"; filename="{}"\r\n' \
+                        'Content-Type: {}\r\n' \
+                        'Content-Transfer-Encoding: binary\r\n\r\n{}\r\n'.format(
+                    boundary, key, attachment.name, attachment.content_type, attachment.read()
+                )
+
+        body += '--{}--\r\n'.format(boundary)
         return body
 
     def _prepare_urlencoded_body(self, data):
