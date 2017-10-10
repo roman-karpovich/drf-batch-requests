@@ -22,9 +22,11 @@ class BatchView(APIView):
         match = re.search(r'boundary=(?P<boundary>.+)', self.request.content_type)
         assert match
         boundary = match.groupdict()['boundary']
-        body = '{}\n'.format(boundary)
+        body = ''
         for key, value in data.items():
-            body += 'Content-Disposition: form-data; name="{}"\n{}\n{}\n'.format(key, value, boundary)
+            value = value if isinstance(value, six.string_types) else json.dumps(value)
+            body += '--{}\r\nContent-Disposition: form-data; name="{}"\r\n\r\n{}\r\n'.format(boundary, key, value)
+        body += '--{}--\r\n'.format(boundary)
 
         return body
 

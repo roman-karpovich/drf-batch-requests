@@ -2,7 +2,6 @@ import json
 import itertools
 
 from django.core.files import File
-from django.utils import six
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
