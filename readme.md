@@ -6,7 +6,8 @@ DRF batch requests
 [![Travis CI](https://travis-ci.org/roman-karpovich/drf-batch-requests.svg?branch=master)](https://travis-ci.org/roman-karpovich/drf-batch-requests)
 [![Coverage Status](https://coveralls.io/repos/github/roman-karpovich/drf-batch-requests/badge.svg?branch=master)](https://coveralls.io/github/roman-karpovich/drf-batch-requests?branch=master)
 [![Code Health](https://landscape.io/github/roman-karpovich/drf-batch-requests/master/landscape.svg?style=flat)](https://landscape.io/github/roman-karpovich/drf-batch-requests/master)
-
+[![Python Versions](https://img.shields.io/pypi/pyversions/drf-batch-requests.svg?style=flat-square)](https://pypi.python.org/pypi/drf-batch-requests)
+[![Implementation](https://img.shields.io/pypi/implementation/drf-batch-requests.svg?style=flat-square)](https://pypi.python.org/pypi/drf-batch-requests)
 
 Quick start
 -----------
