@@ -1,1 +1,1 @@
-recursive-include drf_batch *
+recursive-include drf_batch_requests *
