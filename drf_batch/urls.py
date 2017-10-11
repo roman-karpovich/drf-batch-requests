@@ -4,5 +4,5 @@ from . import views
 
 
 urlpatterns = [
-    url('batch', views.BatchView.as_view())
+    url('^', views.BatchView.as_view())
 ]
