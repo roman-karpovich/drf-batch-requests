@@ -10,8 +10,8 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='drf-batch-requests',
-    version='0.8.1',
-    packages=['drf_batch', ],
+    version='0.8.2',
+    packages=['drf_batch_requests', ],
     include_package_data=True,
     license='MIT License',
     description='Facebook-like implementation of batch requests',

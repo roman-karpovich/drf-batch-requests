@@ -1,4 +1,8 @@
-from django.urls import resolve
+try:
+    from django.urls import resolve
+except ImportError:
+    from django.core.urlresolvers import resolve
+
 from rest_framework.test import APITestCase as OriginalAPITestCase, APIRequestFactory, force_authenticate
 
 

@@ -37,7 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'drf_batch',
+    'drf_batch_requests',
     'drf_batch_example'
 )
 

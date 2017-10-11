@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
 
 urlpatterns = [
-    url(r'^batch/', include('drf_batch.urls', namespace='drf_batch')),
+    url(r'^batch/', include('drf_batch_requests.urls', namespace='drf_batch')),
     url(r'^example/', include('drf_batch_example.urls', namespace='drf_batch_example')),
 ]

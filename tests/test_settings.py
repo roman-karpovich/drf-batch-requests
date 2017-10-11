@@ -12,7 +12,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
 
-    'drf-batch-requests',
+    'drf_batch_requests',
     'tests',
 ]
 

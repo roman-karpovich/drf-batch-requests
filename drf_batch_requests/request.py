@@ -1,11 +1,13 @@
-from urllib.parse import urlparse, parse_qs
+try:
+    from urllib.parse import urlparse, parse_qs
+except ImportError:
+     from urlparse import urlparse, parse_qs
 
 from django.http import HttpRequest
 
 import re, json
 
 from django.utils import six
-from django.utils.functional import cached_property
 from django.utils.six import BytesIO
 from rest_framework.exceptions import ValidationError
 
