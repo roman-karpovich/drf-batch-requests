@@ -3,6 +3,11 @@ python:
   - "3.5"
 install:
   - pip install .
-  - pip install tox
+  - pip install tox coverage coveralls
 script:
   - tox
+  - coverage run ./runtests.py
+  - coverage report --include=drf_batch_requests/*.py --skip-covered
+  #- coverage report --fail-under=90 --include=drf_batch_requests/*.py --skip-covered
+after-success:
+  - coveralls
