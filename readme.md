@@ -1,6 +1,11 @@
 DRF batch requests
 =====================
 
+
+[![PyPI version](https://badge.fury.io/py/drf-batch-requests.svg)](https://badge.fury.io/py/drf-batch-requests)
+[![Travis CI](https://travis-ci.org/roman-karpovich/drf-batch-requests.svg?branch=master)](https://travis-ci.org/roman-karpovich/drf-batch-requests)
+
+
 Quick start
 -----------
 

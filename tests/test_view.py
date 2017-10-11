@@ -3,7 +3,7 @@ import json
 from .mixins import APITestCase
 
 
-class AuthenticationTestCase(APITestCase):
+class BaseTestCase(APITestCase):
     def test_json_batch(self):
         batch = [
             {
