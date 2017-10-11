@@ -2,20 +2,20 @@ import os
 
 from setuptools import setup
 
-# with open(os.path.join(os.path.dirname(__file__), 'readme.md')) as readme:
-#     README = readme.read()
+with open(os.path.join(os.path.dirname(__file__), 'readme.md')) as readme:
+    README = readme.read()
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='drf-batch-requests',
-    version='0.8.2',
+    version='0.8.3',
     packages=['drf_batch_requests', ],
     include_package_data=True,
     license='MIT License',
     description='Facebook-like implementation of batch requests',
-    # long_description=README,
+    long_description=README,
     keywords='django django-rest-framework drf batch',
     url='https://github.com/roman-karpovich/drf-batch-requests',
     author='Roman Karpovich',
