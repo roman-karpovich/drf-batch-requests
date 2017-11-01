@@ -22,7 +22,7 @@ setup(
     author_email='fpm.th13f@gmail.com',
     install_requires=[
         'django',
-        'django-rest-framework',
+        'djangorestframework',
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',
