@@ -1,5 +1,4 @@
 import json
-import itertools
 
 from django.core.files import File
 

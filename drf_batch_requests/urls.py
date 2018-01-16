@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from . import views
+from drf_batch_requests import views
 
 
 urlpatterns = [

@@ -1,14 +1,16 @@
 import json
 
 from django.core.handlers.base import BaseHandler
+from django.db import transaction
 from rest_framework.response import Response
 from rest_framework.status import is_success
 from rest_framework.views import APIView
 
-from .request import BatchRequestsFactory
+from drf_batch_requests.request import BatchRequestsFactory
 
 
 class BatchView(APIView):
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         responses = []
 

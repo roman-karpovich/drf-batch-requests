@@ -5,14 +5,15 @@ except ImportError:
 
 from django.http import HttpRequest
 
-import re, json
+import re
+import json
 
 from django.utils import six
 from django.utils.six import BytesIO
 from rest_framework.exceptions import ValidationError
 
-from .serializers import BatchRequestSerializer
-from .utils import get_attribute
+from drf_batch_requests.serializers import BatchRequestSerializer
+from drf_batch_requests.utils import get_attribute
 
 
 class BatchRequest(HttpRequest):

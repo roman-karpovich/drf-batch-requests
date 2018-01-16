@@ -1,6 +1,6 @@
 import json
 
-from .mixins import APITestCase
+from tests.mixins import APITestCase
 
 
 class BaseTestCase(APITestCase):
