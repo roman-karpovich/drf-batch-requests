@@ -86,3 +86,10 @@ Future features:
 - ~~switchable atomic support. true - all fails if something wrong. else - fail only dependent (can be very hard to support on front-end side, but for now seems as good feature)~~ run all requests in single transaction. (done)
 - ~~use native django. we don't use complicated things that require drf for work. all can be done with "naked" django.~~ (since we validate requests with drf serializers, it's better to leave as it is).
 - support files uploading (done)
+
+
+
+Dependencies:
+
+- Django starting from 1.9
+- Django rest framework (3.6 for 1.9 django)
