@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='drf-batch-requests',
-    version='0.8.5',
+    version='0.8.6',
     packages=['drf_batch_requests', ],
     include_package_data=True,
     license='MIT License',

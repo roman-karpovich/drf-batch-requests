@@ -10,6 +10,8 @@ from drf_batch_requests.request import BatchRequestsFactory
 
 
 class BatchView(APIView):
+    permission_classes = []
+
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         responses = []
