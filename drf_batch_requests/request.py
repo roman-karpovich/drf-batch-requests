@@ -1,3 +1,5 @@
+from django.utils.encoding import force_text
+
 try:
     from urllib.parse import urlparse, parse_qs
 except ImportError:
@@ -33,12 +35,28 @@ class BatchRequest(HttpRequest):
 
 
 class BatchRequestsFactory(object):
+    response_variable_regex = re.compile(r'({result=(?P<name>\w+):\$\.(?P<value>[a-zA-Z0-9.*]+)})')
+
     def __init__(self, request):
         self.request = request
         self.request_serializer = BatchRequestSerializer(data=request.data)
         self.request_serializer.is_valid(raise_exception=True)
+        self.update_soft_dependencies()
 
         self.named_responses = {}
+
+    def update_soft_dependencies(self):
+        for request_data in self.request_serializer.validated_data['batch']:
+            parents = request_data.get('depends_on', [])
+
+            for part in request_data.values():
+                params = re.findall(
+                    self.response_variable_regex, force_text(part)
+                )
+
+                parents.extend(map(lambda param: param[1], params or []))
+
+            request_data['depends_on'] = set(parents)
 
     def _prepare_formdata_body(self, data, files=None):
         if not data:
@@ -72,7 +90,7 @@ class BatchRequestsFactory(object):
 
     def _process_attr(self, attr):
         params = re.findall(
-            r'({result=(?P<name>\w+):\$\.(?P<value>[a-zA-Z0-9.*]+)})', attr
+            self.response_variable_regex, attr
         )
         if not params:
             return attr
@@ -109,19 +127,21 @@ class BatchRequestsFactory(object):
 
         return obj
 
-    def __iter__(self):
-        for request_data in self.request_serializer.data['batch']:
+    def get_requests_data(self):
+        return self.request_serializer.validated_data['batch']
 
-            request_data['data'] = self.updated_obj(request_data['data'])
-            request_data['relative_url'] = self._process_attr(request_data['relative_url'])
+    def generate_request(self, request_data):
+        request_data['data'] = self.updated_obj(request_data['data'])
+        request_data['relative_url'] = self._process_attr(request_data['relative_url'])
 
-            if self.request.content_type.startswith('multipart/form-data'):
-                request_data['_body'] = self._prepare_formdata_body(request_data['data'], files=request_data.get('files', {}))
-            elif self.request.content_type.startswith('application/x-www-form-urlencoded'):
-                request_data['_body'] = self._prepare_urlencoded_body(request_data['data'])
-            elif self.request.content_type.startswith('application/json'):
-                request_data['_body'] = self._prepare_json_body(request_data['data'])
-            else:
-                raise ValidationError('Unsupported content type')
+        if self.request.content_type.startswith('multipart/form-data'):
+            request_data['_body'] = self._prepare_formdata_body(request_data['data'],
+                                                                files=request_data.get('files', {}))
+        elif self.request.content_type.startswith('application/x-www-form-urlencoded'):
+            request_data['_body'] = self._prepare_urlencoded_body(request_data['data'])
+        elif self.request.content_type.startswith('application/json'):
+            request_data['_body'] = self._prepare_json_body(request_data['data'])
+        else:
+            raise ValidationError('Unsupported content type')
 
-            yield BatchRequest(self.request, request_data)
+        return BatchRequest(self.request, request_data)

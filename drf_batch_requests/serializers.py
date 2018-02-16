@@ -1,13 +1,17 @@
 import json
 
 from django.core.files import File
+from django.utils import six
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from drf_batch_requests.utils import generate_random_id
+
 
 class SingleRequestSerializer(serializers.Serializer):
     name = serializers.CharField(required=False)
+    depends_on = serializers.JSONField(required=False)
     method = serializers.CharField()
     relative_url = serializers.CharField()
     body = serializers.JSONField(required=False, default={})
@@ -15,22 +19,6 @@ class SingleRequestSerializer(serializers.Serializer):
     attached_files = serializers.JSONField(required=False)
     data = serializers.SerializerMethodField()
     files = serializers.SerializerMethodField()
-
-    def get_files(self, attrs):
-        if 'attached_files' not in attrs:
-            return []
-
-        attached_files = attrs['attached_files']
-        if isinstance(attached_files, dict):
-            return {
-                key: self.context['parent'].get_files()[attrs['attached_files'][key]] for key in attrs['attached_files']
-            }
-        elif isinstance(attached_files, list):
-            return {
-                key: self.context['parent'].get_files()[key] for key in attrs['attached_files']
-            }
-        else:
-            raise ValidationError('Incorrect format.')
 
     def validate_relative_url(self, value):
         if not value.startswith('/'):
@@ -49,12 +37,42 @@ class SingleRequestSerializer(serializers.Serializer):
 
         return value
 
+    def validate(self, attrs):
+        if 'name' not in attrs:
+            attrs['name'] = generate_random_id()
+
+        if 'depends_on' in attrs:
+            value = attrs['depends_on']
+            if not isinstance(value, (six.string_types, list)):
+                raise ValidationError({'depends_on': 'Incorrect value provided'})
+
+            if isinstance(value, six.string_types):
+                attrs['depends_on'] = [value]
+
+        return attrs
+
     def get_data(self, data):
         body = data['body']
         if isinstance(body, dict):
             return body
 
         return json.loads(body)
+
+    def get_files(self, attrs):
+        if 'attached_files' not in attrs:
+            return []
+
+        attached_files = attrs['attached_files']
+        if isinstance(attached_files, dict):
+            return {
+                key: self.context['parent'].get_files()[attrs['attached_files'][key]] for key in attrs['attached_files']
+            }
+        elif isinstance(attached_files, list):
+            return {
+                key: self.context['parent'].get_files()[key] for key in attrs['attached_files']
+            }
+        else:
+            raise ValidationError('Incorrect format.')
 
 
 class BatchRequestSerializer(serializers.Serializer):
