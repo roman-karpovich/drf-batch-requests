@@ -78,5 +78,5 @@ class BatchView(APIView):
             if is_completed:
                 break
 
-        ordered_responses = [responses[name] for name in ordered_names]
+        ordered_responses = [responses.get(name, {'code': 418}) for name in ordered_names]
         return self.finalize_response(request, Response(ordered_responses))
