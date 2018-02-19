@@ -1,5 +1,7 @@
 from django.utils.encoding import force_text
 
+from drf_batch_requests.exceptions import RequestAttributeError
+
 try:
     from urllib.parse import urlparse, parse_qs
 except ImportError:
@@ -35,7 +37,7 @@ class BatchRequest(HttpRequest):
 
 
 class BatchRequestsFactory(object):
-    response_variable_regex = re.compile(r'({result=(?P<name>\w+):\$\.(?P<value>[a-zA-Z0-9.*]+)})')
+    response_variable_regex = re.compile(r'({result=(?P<name>[\w\d_]+):\$\.(?P<value>[\w\d_.*]+)})')
 
     def __init__(self, request):
         self.request = request
@@ -103,6 +105,10 @@ class BatchRequestsFactory(object):
                 self.named_responses[url_param[1]]['_data'],
                 url_param[2].split('.')
             )
+
+            if result is None:
+                raise RequestAttributeError('Empty result for {}'.format(url_param[2]))
+
             if isinstance(result, list):
                 result = ','.join(map(six.text_type, result))
 

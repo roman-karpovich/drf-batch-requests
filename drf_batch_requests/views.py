@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.status import is_success
 from rest_framework.views import APIView
 
+from drf_batch_requests.exceptions import RequestAttributeError
 from drf_batch_requests.graph import RequestGraph
 from drf_batch_requests.request import BatchRequestsFactory
 from drf_batch_requests import settings as app_settings
@@ -39,7 +40,11 @@ class BatchView(APIView):
             available_nodes = list(requests_graph.get_current_available_nodes())
 
             for node in available_nodes:
-                current_request = requests_factory.generate_request(node.request)
+                try:
+                    current_request = requests_factory.generate_request(node.request)
+                except RequestAttributeError as ex:
+                    # todo: set fail reason
+                    node.fail()
 
                 start_callback = generate_node_callback(node, 'start')
                 success_callback = generate_node_callback(node, 'success')

@@ -11,7 +11,8 @@ class TestView(APIView):
                 {'id': '2'},
                 {'id': '3'},
                 {'id': '4'},
-            ]
+            ],
+            'empty_argument': None
         }))
 
     def post(self, request, *args, **kwargs):
