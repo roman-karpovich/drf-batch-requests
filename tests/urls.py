@@ -10,4 +10,5 @@ urlpatterns = [
     url('batch/', include('drf_batch_requests.urls', namespace='drf_batch')),
     url('test/', views.TestAPIView.as_view()),
     url('test_fbv/', views.test_fbv),
+    url('test-files/', views.TestFilesAPIView.as_view()),
 ]

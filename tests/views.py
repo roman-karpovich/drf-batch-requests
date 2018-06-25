@@ -24,3 +24,16 @@ def test_fbv(request):
         return JsonResponse(request.POST)
     else:
         return JsonResponse({'field1': 'field1_value', 'field2': 'field2_value'})
+
+
+class TestFilesAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        return self.finalize_response(request, Response({
+            'files': {
+                key: {
+                    'name': attachment.name,
+                    'size': attachment.size
+                }
+                for key, attachment in request.FILES.items()
+            }
+        }))

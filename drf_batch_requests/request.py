@@ -61,7 +61,7 @@ class BatchRequestsFactory(object):
             request_data['depends_on'] = set(parents)
 
     def _prepare_formdata_body(self, data, files=None):
-        if not data:
+        if not data and not files:
             return ''
 
         match = re.search(r'boundary=(?P<boundary>.+)', self.request.content_type)
