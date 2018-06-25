@@ -76,8 +76,8 @@ class BaseTestCase(APITestCase):
 
         responses_data = list(map(lambda r: json.loads(r['body']), responses.data))
         self.assertIn('files', responses_data[0])
-        self.assertListEqual(['file', 'second_file'], list(responses_data[0]['files'].keys()))
+        self.assertListEqual(sorted(['file', 'second_file']), sorted(list(responses_data[0]['files'].keys())))
         self.assertListEqual(
-            ['hello_world.txt', 'second file.txt'],
-            [a['name'] for a in responses_data[0]['files'].values()]
+            sorted(['hello_world.txt', 'second file.txt']),
+            sorted([a['name'] for a in responses_data[0]['files'].values()])
         )
