@@ -35,6 +35,37 @@ class BatchRequest(HttpRequest):
         self.COOKIES = request.COOKIES
         self.GET = parse_qs(urlparse(self.path_info).query)
 
+    # Standard WSGI supported headers
+    # (are not prefixed with HTTP_)
+    _wsgi_headers = ["content_length", "content_type", "query_string",
+                     "remote_addr", "remote_host", "remote_user",
+                     "request_method", "server_name", "server_port"]
+
+    def _set_headers(self, request, headers):
+        """
+        Inherit headers from batch request by default.
+        Override with values given in subrequest.
+        """
+        self.META = request.META if request is not None else {}
+        if headers is not None:
+            self.META.update(self._transform_headers(headers))
+
+    def _transform_headers(self, headers):
+        """
+        For every header:
+        - replace - to _
+        - prepend http_ if necessary
+        - convert to uppercase
+        """
+        result = {}
+        for header, value in headers.items():
+            header = header.replace("-", "_")
+            header = f"http_{header}" \
+                     if header.lower() not in self._wsgi_headers \
+                     else header
+            result.update({header.upper(): value})
+        return result
+
 
 class BatchRequestsFactory(object):
     response_variable_regex = re.compile(r'({result=(?P<name>[\w\d_]+):\$\.(?P<value>[\w\d_.*]+)})')
