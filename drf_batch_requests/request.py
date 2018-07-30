@@ -31,7 +31,7 @@ class BatchRequest(HttpRequest):
 
         self.method = request_data['method']
         self.path_info = self.path = request_data['relative_url']
-        self.META = request.META
+        self._set_headers(request, request_data.get('headers', {}))
         self.COOKIES = request.COOKIES
         self.GET = parse_qs(urlparse(self.path_info).query)
 
@@ -60,7 +60,7 @@ class BatchRequest(HttpRequest):
         result = {}
         for header, value in headers.items():
             header = header.replace("-", "_")
-            header = f"http_{header}" \
+            header = "http_{header}".format(header=header) \
                      if header.lower() not in self._wsgi_headers \
                      else header
             result.update({header.upper(): value})
