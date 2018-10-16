@@ -81,3 +81,19 @@ class BaseTestCase(APITestCase):
             sorted(['hello_world.txt', 'second file.txt']),
             sorted([a['name'] for a in responses_data[0]['files'].values()])
         )
+
+    def test_non_json(self):
+        responses = self.forced_auth_req(
+            'post', '/batch/',
+            data={
+                'batch': [
+                    {
+                        'method': 'GET',
+                        'relative_url': '/test-non-json/'
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(responses.status_code, status.HTTP_200_OK, msg=responses.data)
+        self.assertEqual(responses.data[0]['body'], 'test non-json output')

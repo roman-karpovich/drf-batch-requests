@@ -1,4 +1,7 @@
 from django.http import JsonResponse
+from django.views.generic import View
+from django.http.response import HttpResponse as DjangoResponse
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -37,3 +40,8 @@ class TestFilesAPIView(APIView):
                 for key, attachment in request.FILES.items()
             }
         }))
+
+
+class SimpleView(View):
+    def get(self, request):
+        return DjangoResponse('test non-json output')

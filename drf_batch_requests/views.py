@@ -1,5 +1,6 @@
 import json
 from importlib import import_module
+from json import JSONDecodeError
 
 from django.db import transaction
 from rest_framework.response import Response
@@ -69,7 +70,10 @@ class BatchView(APIView):
                 }
 
                 if is_success(response.status_code):
-                    result['_data'] = json.loads(result['body'])
+                    try:
+                        result['_data'] = json.loads(result['body'])
+                    except JSONDecodeError:
+                        pass
 
                 if not is_success(response.status_code) or \
                    is_success(response.status_code) and not current_request.omit_response_on_success:
