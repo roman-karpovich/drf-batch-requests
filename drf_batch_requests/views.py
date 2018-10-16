@@ -1,6 +1,10 @@
 import json
 from importlib import import_module
-from json import JSONDecodeError
+
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 from django.db import transaction
 from rest_framework.response import Response
