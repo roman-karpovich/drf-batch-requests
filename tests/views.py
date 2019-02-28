@@ -1,9 +1,8 @@
 from django.http import JsonResponse
-from django.views.generic import View
 from django.http.response import HttpResponse as DjangoResponse
-
-from rest_framework.views import APIView
+from django.views.generic import View
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class TestAPIView(APIView):
@@ -15,7 +14,7 @@ class TestAPIView(APIView):
                 {'id': 3, 'some_data': 'baz'},
             ],
             'page': 1,
-            'get': {k: v[0] for k, v in request.GET.items()}
+            'get': request.query_params
         }))
 
     def post(self, request, *args, **kwargs):
