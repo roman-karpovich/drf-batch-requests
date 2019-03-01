@@ -1,26 +1,21 @@
-from django.utils.encoding import force_text
-
-from drf_batch_requests.exceptions import RequestAttributeError
-
-try:
-    from urllib.parse import urlparse, parse_qs
-except ImportError:
-     from urlparse import urlparse, parse_qs
+import json
+import re
 
 from django.http import HttpRequest
-
-import re
-import json
-
+from django.http.request import QueryDict
 from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.six import BytesIO
+from django.utils.six.moves.urllib.parse import urlsplit
 from rest_framework.exceptions import ValidationError
 
+from drf_batch_requests.exceptions import RequestAttributeError
 from drf_batch_requests.serializers import BatchRequestSerializer
 from drf_batch_requests.utils import get_attribute
 
 
 class BatchRequest(HttpRequest):
+
     def __init__(self, request, request_data):
         super(BatchRequest, self).__init__()
         self.name = request_data.get('name')
@@ -30,10 +25,13 @@ class BatchRequest(HttpRequest):
         self._read_started = False
 
         self.method = request_data['method']
-        self.path_info = self.path = request_data['relative_url']
+
+        split_url = urlsplit(request_data['relative_url'])
+        self.path_info = self.path = split_url.path
+
+        self.GET = QueryDict(split_url.query)
         self.META = request.META
         self.COOKIES = request.COOKIES
-        self.GET = parse_qs(urlparse(self.path_info).query)
 
 
 class BatchRequestsFactory(object):
