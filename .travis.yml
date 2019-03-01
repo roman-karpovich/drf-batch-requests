@@ -4,6 +4,7 @@ python:
   - "2.7"
   - "3.5"
   - "3.6"
+  - "3.7"
 install:
   - pip install .
   - pip install tox tox-travis coverage coveralls
@@ -11,6 +12,6 @@ script:
   - tox
   - coverage run ./runtests.py
   - coverage report --include=drf_batch_requests/*.py --skip-covered
-  #- coverage report --fail-under=90 --include=drf_batch_requests/*.py --skip-covered
+  - coverage report --fail-under=80 --include=drf_batch_requests/*.py --skip-covered
 after-success:
   - coveralls
