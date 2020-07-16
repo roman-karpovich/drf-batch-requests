@@ -1,0 +1,19 @@
+[flake8]
+max-line-length = 120
+ignore =
+    ; PyFlakes errors
+    ; F405 name may be undefined, or defined from star imports: module
+    ; DUO130 insecure use of "hashlib" module
+    DUO130
+    F405
+    W503
+    S105
+    S107
+    S303
+    P103
+
+
+
+exclude =
+    */migrations
+    ./.tox

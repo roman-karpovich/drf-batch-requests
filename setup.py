@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='drf-batch-requests',
-    version='0.8.11',
+    version='0.9.0',
     packages=['drf_batch_requests', ],
     include_package_data=True,
     license='MIT License',
@@ -21,7 +21,7 @@ setup(
     author='Roman Karpovich',
     author_email='fpm.th13f@gmail.com',
     install_requires=[
-        'django>=1.9',
+        'django>=2.2',
         'djangorestframework',
     ],
     classifiers=[
@@ -32,11 +32,10 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],

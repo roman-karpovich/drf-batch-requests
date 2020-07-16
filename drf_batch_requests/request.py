@@ -1,12 +1,12 @@
 import json
 import re
+from io import BytesIO
+from urllib.parse import urlsplit
 
 from django.http import HttpRequest
 from django.http.request import QueryDict
-from django.utils import six
 from django.utils.encoding import force_text
-from django.utils.six import BytesIO
-from django.utils.six.moves.urllib.parse import urlsplit
+
 from rest_framework.exceptions import ValidationError
 
 from drf_batch_requests.exceptions import RequestAttributeError
@@ -67,15 +67,16 @@ class BatchRequestsFactory(object):
         boundary = match.groupdict()['boundary']
         body = ''
         for key, value in data.items():
-            value = value if isinstance(value, six.string_types) else json.dumps(value)
+            value = value if isinstance(value, str) else json.dumps(value)
             body += '--{}\r\nContent-Disposition: form-data; name="{}"\r\n\r\n{}\r\n'.format(boundary, key, value)
 
         if files:
             for key, attachment in files.items():
                 attachment.seek(0)
-                body += '--{}\r\nContent-Disposition: form-data; name="{}"; filename="{}"\r\n' \
-                        'Content-Type: {}\r\n' \
-                        'Content-Transfer-Encoding: binary\r\n\r\n{}\r\n'.format(
+                attachment_body_part = '--{0}\r\nContent-Disposition: form-data; name="{1}"; filename="{2}"\r\n' \
+                                       'Content-Type: {3}\r\n' \
+                                       'Content-Transfer-Encoding: binary\r\n\r\n{4}\r\n'
+                body += attachment_body_part.format(
                     boundary, key, attachment.name, attachment.content_type, attachment.read()
                 )
 
@@ -108,7 +109,7 @@ class BatchRequestsFactory(object):
                 raise RequestAttributeError('Empty result for {}'.format(url_param[2]))
 
             if isinstance(result, list):
-                result = ','.join(map(six.text_type, result))
+                result = ','.join(map(str, result))
 
             if attr == url_param[0]:
                 attr = result
@@ -126,7 +127,7 @@ class BatchRequestsFactory(object):
         if isinstance(obj, dict):
             for key, value in obj.items():
                 obj[key] = self.updated_obj(value)
-        elif isinstance(obj, six.string_types):
+        elif isinstance(obj, str):
             return self._process_attr(obj)
 
         return obj

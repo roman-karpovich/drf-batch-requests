@@ -3,7 +3,9 @@ try:
 except ImportError:
     from django.core.urlresolvers import resolve
 
-from rest_framework.test import APITestCase as OriginalAPITestCase, APIRequestFactory, force_authenticate
+from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase as OriginalAPITestCase
+from rest_framework.test import force_authenticate
 
 
 class APITestCase(OriginalAPITestCase):

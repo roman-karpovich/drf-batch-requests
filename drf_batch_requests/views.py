@@ -1,21 +1,22 @@
 import json
 from importlib import import_module
 
-try:
-    from json import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
-
 from django.db import transaction
+
 from rest_framework.response import Response
 from rest_framework.status import is_success
 from rest_framework.views import APIView
 
+from drf_batch_requests import settings as app_settings
 from drf_batch_requests.exceptions import RequestAttributeError
 from drf_batch_requests.graph import RequestGraph
 from drf_batch_requests.request import BatchRequestsFactory
-from drf_batch_requests import settings as app_settings
 from drf_batch_requests.utils import generate_node_callback
+
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 
 class BatchView(APIView):
@@ -47,7 +48,7 @@ class BatchView(APIView):
             for node in available_nodes:
                 try:
                     current_request = requests_factory.generate_request(node.request)
-                except RequestAttributeError as ex:
+                except RequestAttributeError:
                     # todo: set fail reason
                     node.fail()
 

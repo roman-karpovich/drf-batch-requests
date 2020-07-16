@@ -1,4 +1,5 @@
 from django.core.handlers.base import BaseHandler
+
 from rest_framework.status import is_success
 
 from drf_batch_requests.backends.base import RequestsConsumeBaseBackend

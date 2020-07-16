@@ -25,8 +25,10 @@ class RequestGraphNode(object):
 
     @property
     def can_be_performed(self):
-        return self.status == RequestGraphNode.STATUS_NOT_STARTED and \
-               all(map(lambda parent: parent.status == RequestGraphNode.STATUS_COMPLETED, self.parents))
+        if not self.status == RequestGraphNode.STATUS_NOT_STARTED:
+            return False
+
+        return all(map(lambda parent: parent.status == RequestGraphNode.STATUS_COMPLETED, self.parents))
 
     def __str__(self):
         return self.name or super(RequestGraphNode, self).__str__()

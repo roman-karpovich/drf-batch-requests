@@ -1,6 +1,6 @@
 try:
-    from django.conf.urls import url, include
-except:
+    from django.conf.urls import include, url
+except ImportError:
     # django 2.0
     from django.urls import re_path as url, include
 

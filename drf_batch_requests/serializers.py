@@ -1,7 +1,6 @@
 import json
 
 from django.core.files import File
-from django.utils import six
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -43,10 +42,10 @@ class SingleRequestSerializer(serializers.Serializer):
 
         if 'depends_on' in attrs:
             value = attrs['depends_on']
-            if not isinstance(value, (six.string_types, list)):
+            if not isinstance(value, (str, list)):
                 raise ValidationError({'depends_on': 'Incorrect value provided'})
 
-            if isinstance(value, six.string_types):
+            if isinstance(value, str):
                 attrs['depends_on'] = [value]
 
         return attrs
