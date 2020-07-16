@@ -11,6 +11,6 @@ script:
   - tox
   - coverage run ./runtests.py
   - coverage report --include=drf_batch_requests/*.py --skip-covered
-  - coverage report --fail-under=120 --include=drf_batch_requests/*.py --skip-covered
+  - coverage report --fail-under=80 --include=drf_batch_requests/*.py --skip-covered
 after-success:
   - coveralls
