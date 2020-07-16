@@ -21,7 +21,7 @@ setup(
     author='Roman Karpovich',
     author_email='fpm.th13f@gmail.com',
     install_requires=[
-        'django>=2.2',
+        'django>=1.11',
         'djangorestframework',
     ],
     classifiers=[
