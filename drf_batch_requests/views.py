@@ -65,6 +65,7 @@ class BatchView(APIView):
                     continue
 
                 result = {
+                    'name': current_request.name,
                     'code': response.status_code,
                     'headers': [
                         {'name': key, 'value': value}
@@ -91,5 +92,5 @@ class BatchView(APIView):
             if is_completed:
                 break
 
-        ordered_responses = [responses.get(name, {'code': 418}) for name in ordered_names]
+        ordered_responses = [responses.get(name, {'name': name, 'code': 418}) for name in ordered_names]
         return self.finalize_response(request, Response(ordered_responses))
