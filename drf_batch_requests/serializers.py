@@ -9,10 +9,9 @@ from drf_batch_requests.utils import generate_random_id
 
 
 class SingleRequestSerializer(serializers.Serializer):
-    
     method = serializers.CharField()
     relative_url = serializers.CharField()
-    
+
     headers = serializers.JSONField(required=False)
     name = serializers.CharField(required=False)
     depends_on = serializers.JSONField(required=False)
