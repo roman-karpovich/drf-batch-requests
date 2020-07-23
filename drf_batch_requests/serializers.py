@@ -9,15 +9,22 @@ from drf_batch_requests.utils import generate_random_id
 
 
 class SingleRequestSerializer(serializers.Serializer):
-    name = serializers.CharField(required=False)
-    depends_on = serializers.JSONField(required=False)
+    
     method = serializers.CharField()
     relative_url = serializers.CharField()
+    
+    headers = serializers.JSONField(required=False)
+    name = serializers.CharField(required=False)
+    depends_on = serializers.JSONField(required=False)
     body = serializers.JSONField(required=False, default={})
     # attached files formats: ["a.jpg", "b.png"] - will be attached as it is, {"file": "a.jpg"} - attach as specific key
     attached_files = serializers.JSONField(required=False)
     data = serializers.SerializerMethodField()
     files = serializers.SerializerMethodField()
+
+    def validate_headers(self, value):
+        if isinstance(value, dict):
+            return value
 
     def validate_relative_url(self, value):
         if not value.startswith('/'):

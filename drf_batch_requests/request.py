@@ -30,8 +30,39 @@ class BatchRequest(HttpRequest):
         self.path_info = self.path = split_url.path
 
         self.GET = QueryDict(split_url.query)
-        self.META = request.META
+        self._set_headers(request, request_data.get('headers', {}))
         self.COOKIES = request.COOKIES
+
+    # Standard WSGI supported headers
+    # (are not prefixed with HTTP_)
+    _wsgi_headers = ["content_length", "content_type", "query_string",
+                     "remote_addr", "remote_host", "remote_user",
+                     "request_method", "server_name", "server_port"]
+
+    def _set_headers(self, request, headers):
+        """
+        Inherit headers from batch request by default.
+        Override with values given in subrequest.
+        """
+        self.META = request.META if request is not None else {}
+        if headers is not None:
+            self.META.update(self._transform_headers(headers))
+
+    def _transform_headers(self, headers):
+        """
+        For every header:
+        - replace - to _
+        - prepend http_ if necessary
+        - convert to uppercase
+        """
+        result = {}
+        for header, value in headers.items():
+            header = header.replace("-", "_")
+            header = "http_{header}".format(header=header) \
+                     if header.lower() not in self._wsgi_headers \
+                     else header
+            result.update({header.upper(): value})
+        return result
 
 
 class BatchRequestsFactory(object):

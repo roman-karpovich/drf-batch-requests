@@ -10,7 +10,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -85,9 +84,10 @@ celerybeat-schedule
 .env
 
 # virtualenv
-.venv
-venv/
+.venv/
+env/
 ENV/
+venv/
 
 # Spyder project settings
 .spyderproject
@@ -102,5 +102,8 @@ ENV/
 *.iml
 out
 gen
+
+# VS Code project files
+.vscode/
 
 db.sqlite3
