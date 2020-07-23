@@ -1,16 +1,15 @@
-import json
 from importlib import import_module
 
 from django.db import transaction
 
 from rest_framework.response import Response
-from rest_framework.status import is_success
 from rest_framework.views import APIView
 
 from drf_batch_requests import settings as app_settings
 from drf_batch_requests.exceptions import RequestAttributeError
 from drf_batch_requests.graph import RequestGraph
 from drf_batch_requests.request import BatchRequestsFactory
+from drf_batch_requests.response import BatchResponse, DummyBatchResponse, ResponseHeader
 from drf_batch_requests.utils import generate_node_callback
 
 try:
@@ -65,33 +64,25 @@ class BatchView(APIView):
                 if current_request.name in responses:
                     continue
 
-                result = {
-                    'name': current_request.name,
-                    'code': response.status_code,
-                    'headers': [
-                        {'name': key, 'value': value}
+                result = BatchResponse(
+                    current_request.name,
+                    response.status_code,
+                    response.content.decode('utf-8'),
+                    headers=[
+                        ResponseHeader(key, value)
                         for key, value in response._headers.values()
                     ],
-                    'body': response.content.decode('utf-8'),
-                }
-
-                if is_success(response.status_code):
-                    try:
-                        result['_data'] = json.loads(result['body'])
-                    except JSONDecodeError:
-                        pass
-
-                if not is_success(response.status_code) or \
-                   is_success(response.status_code) and not current_request.omit_response_on_success:
-                    result['return_body'] = True
+                    omit_response_on_success=current_request.omit_response_on_success,
+                    status_text=response.reason_phrase
+                )
 
                 if current_request.name:
                     requests_factory.named_responses[current_request.name] = result
 
-                responses[current_request.name] = result
+                responses[current_request.name] = result.to_dict()
 
             if is_completed:
                 break
 
-        ordered_responses = [responses.get(name, {'name': name, 'code': 418}) for name in ordered_names]
+        ordered_responses = [responses.get(name, DummyBatchResponse(name).to_dict()) for name in ordered_names]
         return self.finalize_response(request, Response(ordered_responses))

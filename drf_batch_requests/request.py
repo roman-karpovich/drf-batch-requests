@@ -132,7 +132,7 @@ class BatchRequestsFactory(object):
                 raise ValidationError('Named request {} is missing'.format(url_param[1]))
 
             result = get_attribute(
-                self.named_responses[url_param[1]]['_data'],
+                self.named_responses[url_param[1]].data,
                 url_param[2].split('.')
             )
 

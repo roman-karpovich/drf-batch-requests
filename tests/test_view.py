@@ -24,6 +24,7 @@ class BaseTestCase(APITestCase):
         responses = self.forced_auth_req('post', '/batch/', data={'batch': batch})
         self.assertEqual(responses.status_code, status.HTTP_200_OK, msg=responses.data)
         self.assertEqual("request1", responses.data[0]['name'])
+        self.assertEqual("OK", responses.data[0]['code_text'])
 
         responses_data = [json.loads(r['body']) for r in responses.data]
         self.assertIn('ids', responses_data[1]['get'])
