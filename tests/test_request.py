@@ -1,5 +1,7 @@
 from django.test import SimpleTestCase
+
 from rest_framework.test import APIRequestFactory
+
 from drf_batch_requests.request import BatchRequest
 
 
