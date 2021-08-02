@@ -70,7 +70,7 @@ class BatchView(APIView):
                     response.content.decode('utf-8'),
                     headers=[
                         ResponseHeader(key, value)
-                        for key, value in response._headers.values()
+                        for key, value in response.headers.values()
                     ],
                     omit_response_on_success=current_request.omit_response_on_success,
                     status_text=response.reason_phrase
