@@ -1,3 +1,4 @@
+import django
 from importlib import import_module
 
 from django.db import transaction
@@ -64,13 +65,19 @@ class BatchView(APIView):
                 if current_request.name in responses:
                     continue
 
+                # Due django.http.response.HttpResponseBase changes
+                if django.VERSION < (3,2):
+                    header_items = response._headers.values()
+                else:
+                    header_items = response.headers.items()
+
                 result = BatchResponse(
                     current_request.name,
                     response.status_code,
                     response.content.decode('utf-8'),
                     headers=[
                         ResponseHeader(key, value)
-                        for key, value in response._headers.values()
+                        for key, value in header_items
                     ],
                     omit_response_on_success=current_request.omit_response_on_success,
                     status_text=response.reason_phrase
