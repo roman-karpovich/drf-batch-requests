@@ -65,11 +65,12 @@ class BatchView(APIView):
                 if current_request.name in responses:
                     continue
 
+                # Due django.http.response.HttpResponseBase changes
                 if django.VERSION < (3,2):
                     header_items = response._headers.values()
                 else:
                     header_items = response.headers.items()
-                    
+
                 result = BatchResponse(
                     current_request.name,
                     response.status_code,
