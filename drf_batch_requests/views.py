@@ -1,6 +1,6 @@
-import django
 from importlib import import_module
 
+import django
 from django.db import transaction
 
 from rest_framework.response import Response
@@ -66,7 +66,7 @@ class BatchView(APIView):
                     continue
 
                 # Due django.http.response.HttpResponseBase changes
-                if django.VERSION < (3,2):
+                if django.VERSION < (3, 2):
                     header_items = response._headers.values()
                 else:
                     header_items = response.headers.items()

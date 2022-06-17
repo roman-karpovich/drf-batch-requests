@@ -5,7 +5,11 @@ from urllib.parse import urlsplit
 
 from django.http import HttpRequest
 from django.http.request import QueryDict
-from django.utils.encoding import force_text
+
+try:
+    from django.utils.encoding import force_text
+except ImportError:
+    from django.utils.encoding import force_str as force_text
 
 from rest_framework.exceptions import ValidationError
 
