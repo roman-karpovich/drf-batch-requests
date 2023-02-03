@@ -21,6 +21,8 @@ class SingleRequestSerializer(serializers.Serializer):
     data = serializers.SerializerMethodField()
     files = serializers.SerializerMethodField()
 
+    omit_response_on_success = serializers.BooleanField(required=False)
+
     def validate_headers(self, value):
         if isinstance(value, dict):
             return value

@@ -24,25 +24,24 @@ class BatchResponse:
     headers: Iterable[ResponseHeader]
     body: str
     _data: dict
-    _return_body: bool = True
 
     def __init__(self, name: str, status_code: int, body: str, headers: Iterable[ResponseHeader] = None,
                  omit_response_on_success: bool = False, status_text: str = None):
         self.name = name
         self.status_code = status_code
         self.status_text = status_text
-        self.body = body
         self.headers = headers or []
-        self.omit_response_on_success = omit_response_on_success
 
         if is_success(self.status_code):
             try:
-                self._data = json.loads(self.body)
+                self._data = json.loads(body)
             except JSONDecodeError:
                 self._data = {}
 
-        if is_success(self.status_code) and self.omit_response_on_success:
-            self._return_body = False
+        if is_success(self.status_code) and omit_response_on_success:
+            self.body = None
+        else:
+            self.body = body
 
     def to_dict(self) -> dict:
         return {
