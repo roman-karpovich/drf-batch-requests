@@ -23,6 +23,7 @@ class BatchRequest(HttpRequest):
     def __init__(self, request, request_data):
         super(BatchRequest, self).__init__()
         self.name = request_data.get('name')
+        self.omit_headers = request_data.get('omit_headers', False)
         self.omit_response_on_success = request_data.get('omit_response_on_success', False)
 
         self._stream = BytesIO(request_data['_body'].encode('utf-8'))
