@@ -27,13 +27,17 @@ class BatchResponse:
     _return_body: bool = True
 
     def __init__(self, name: str, status_code: int, body: str, headers: Iterable[ResponseHeader] = None,
-                 omit_response_on_success: bool = False, status_text: str = None):
+                 omit_headers: bool = False, omit_response_on_success: bool = False, status_text: str = None):
         self.name = name
         self.status_code = status_code
         self.status_text = status_text
         self.body = body
-        self.headers = headers or []
         self.omit_response_on_success = omit_response_on_success
+
+        if omit_headers:
+            self.headers = []
+        else:
+            self.headers = headers or []
 
         if is_success(self.status_code):
             try:

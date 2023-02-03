@@ -74,6 +74,7 @@ class BatchView(APIView):
                         ResponseHeader(key, value)
                         for key, value in header_items
                     ],
+                    omit_headers=current_request.omit_headers,
                     omit_response_on_success=current_request.omit_response_on_success,
                     status_text=response.reason_phrase
                 )
