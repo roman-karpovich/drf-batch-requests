@@ -33,6 +33,36 @@ class BaseTestCase(APITestCase):
             ','.join([str(o['id']) for o in responses_data[0]['data']])
         )
 
+    def test_omit_response_on_success(self):
+        batch = [
+            {
+                "method": "GET",
+                "relative_url": "/tests/test/",
+                "omit_response_on_success": True,
+            },
+            {
+                "method": "GET",
+                "relative_url": "/tests/test/",
+                "omit_response_on_success": False,
+            },
+            {
+                "method": "GET",
+                "relative_url": "/tests/test/",
+            },
+            {
+                "method": "GET",
+                "relative_url": "/tests/error/",
+                "omit_response_on_success": True,
+            },
+        ]
+
+        responses = self.forced_auth_req('post', '/batch/', data={'batch': batch})
+
+        self.assertFalse(responses.data[0]['body'])
+        self.assertTrue(responses.data[1]['body'])
+        self.assertTrue(responses.data[2]['body'])
+        self.assertTrue(responses.data[3]['body'])
+
     def test_multipart_simple_request(self):
         batch = [
             {
